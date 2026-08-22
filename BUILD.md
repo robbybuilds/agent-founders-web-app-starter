@@ -2,7 +2,7 @@
 
 ## Current Stage
 
-Starter v1 implementation
+Starter v1 on `main`, pending hosted release verification
 
 ## Current Product
 
@@ -27,6 +27,7 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - Protected dashboard, Projects CRUD, and account settings are implemented.
 - The local agent skill, member guides, access process, release process, license, CI, and Dependabot configuration are present.
 - Public and login screens pass desktop and mobile browser checks.
+- Pull request 1 is merged, so the complete starter is now on the default `main` branch.
 
 ## In Progress
 
@@ -34,7 +35,7 @@ Clear the GitHub Actions account block and run the committed CI workflow.
 
 ## Next Exact Task
 
-Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest CI workflow from pull request 1, and inspect both jobs before merging.
+Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest CI workflow on `main`, and inspect both jobs before creating the member release.
 
 ## Evidence
 
