@@ -2,7 +2,7 @@
 
 ## Current Stage
 
-Starter v1 on `main`, pending hosted release verification
+Starter v1 on `main`, cloud CI verified and pending hosted release verification
 
 ## Current Product
 
@@ -34,14 +34,15 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - Public and login screens pass desktop and mobile browser checks.
 - Pull request 1 is merged, so the complete starter is now on the default `main` branch.
 - GitHub recognizes the private repository as a template.
+- GitHub Actions passes both the application and database/RLS jobs on `main`.
 
 ## In Progress
 
-Clear the GitHub Actions account block and run the committed CI workflow.
+Prepare hosted Supabase and Vercel release verification.
 
 ## Next Exact Task
 
-Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest CI workflow on `main`, and inspect both jobs before creating the member release.
+Connect hosted Supabase and Vercel, apply the committed migration, and run the complete production release checklist with two test accounts.
 
 ## Evidence
 
@@ -56,6 +57,7 @@ Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest 
 - `pnpm audit --prod --audit-level=high` reported no known vulnerabilities.
 - A standard security scan reviewed the authentication, authorization, database, secret handling, and deployment surfaces. Its four findings were fixed before this release candidate.
 - A new clone of the GitHub repository completed `pnpm install --frozen-lockfile` and `pnpm check` at commit `d5765f6` without relying on local generated files.
+- GitHub Actions run `32598235941` passed the application checks, browser tests, clean migration rebuild, and database/RLS tests.
 
 ## Known Limits
 
@@ -63,4 +65,3 @@ Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest 
 - Supabase and Vercel production projects have not been connected.
 - The local database suite could not run because this Mac has no Docker-compatible runtime.
 - Authenticated CRUD browser tests still require local or hosted Supabase test credentials.
-- GitHub rejected both CI jobs before runner startup because the account has a failed payment or Actions spending-limit block.
