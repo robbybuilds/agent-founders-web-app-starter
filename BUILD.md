@@ -34,7 +34,7 @@ Clear the GitHub Actions account block and run the committed CI workflow.
 
 ## Next Exact Task
 
-Fix the `robbybuilds` Actions billing or spending-limit block, rerun CI run `32575583121`, and inspect both jobs before merging.
+Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest CI workflow from pull request 1, and inspect both jobs before merging.
 
 ## Evidence
 
