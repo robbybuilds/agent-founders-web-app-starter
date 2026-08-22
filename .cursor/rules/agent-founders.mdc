@@ -1,0 +1,6 @@
+---
+description: Use the repository's canonical agent rules
+alwaysApply: true
+---
+
+Read and follow `AGENTS.md`, `PRODUCT.md`, `BUILD.md`, and `ARCHITECTURE.md` before editing code. `AGENTS.md` is the canonical rule set. Do not restate or override it here.
