@@ -40,6 +40,7 @@ You shouldn't have to paste your entire project history into every new conversat
 - [Set up the starter](docs/01-setup.md)
 - [Shape your product](docs/02-shape-your-product.md)
 - [Build with your agent](docs/03-build-with-your-agent.md)
+- [Understand the included agent skill](docs/agent-skills.md)
 - [Change the database](docs/04-change-the-database.md)
 - [Deploy to Vercel](docs/05-deploy.md)
 - [Fix common problems](docs/06-troubleshooting.md)

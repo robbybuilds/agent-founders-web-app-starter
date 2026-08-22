@@ -1,0 +1,10 @@
+# Changelog
+
+## Unreleased
+
+- Added the private v1 golden-path architecture.
+- Added the beginner setup, product, agent, database, deployment, and troubleshooting guides.
+- Added Next.js 16, React 19, Tailwind 4, shadcn/ui, and Supabase foundations.
+- Added authentication, protected routes, account settings, and Projects CRUD.
+- Added SQL migrations, RLS policies, pgTAP tests, unit tests, browser tests, and CI.
+
