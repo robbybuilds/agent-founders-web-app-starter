@@ -45,7 +45,10 @@ set search_path = ''
 as $$
 begin
   insert into public.profiles (id, display_name)
-  values (new.id, nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''));
+  values (
+    new.id,
+    left(nullif(trim(new.raw_user_meta_data ->> 'display_name'), ''), 80)
+  );
   return new;
 end;
 $$;
@@ -53,6 +56,9 @@ $$;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
+
+revoke execute on function public.set_updated_at() from public, anon, authenticated;
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
 
 alter table public.profiles enable row level security;
 alter table public.projects enable row level security;
@@ -106,4 +112,3 @@ on public.projects
 for delete
 to authenticated
 using ((select auth.uid()) = user_id);
-

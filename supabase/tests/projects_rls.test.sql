@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select plan(10);
+select plan(16);
 
 insert into auth.users (
   instance_id,
@@ -52,6 +52,12 @@ select set_config(
   true
 );
 
+select results_eq(
+  $$select display_name from public.profiles$$,
+  $$values ('Owner'::text)$$,
+  'the owner can only read their profile'
+);
+
 select lives_ok(
   $$insert into public.projects (name, description) values ('Private project', 'Owner only')$$,
   'the owner can create a project'
@@ -61,6 +67,20 @@ select results_eq(
   $$select count(*)::integer from public.projects$$,
   $$values (1)$$,
   'the owner can read their project'
+);
+
+select throws_ok(
+  $$insert into public.projects (user_id, name) values ('22222222-2222-4222-8222-222222222222', 'Foreign owner')$$,
+  '42501',
+  'new row violates row-level security policy for table "projects"',
+  'the owner cannot create a project for another user'
+);
+
+select throws_ok(
+  $$update public.projects set user_id = '22222222-2222-4222-8222-222222222222' where name = 'Private project'$$,
+  '42501',
+  'new row violates row-level security policy for table "projects"',
+  'the owner cannot transfer a project through an update'
 );
 
 select lives_ok(
@@ -81,6 +101,17 @@ select set_config(
 );
 
 select results_eq(
+  $$select display_name from public.profiles$$,
+  $$values ('Other'::text)$$,
+  'another user can only read their profile'
+);
+
+select lives_ok(
+  $$update public.profiles set display_name = 'Stolen' where id = '11111111-1111-4111-8111-111111111111'$$,
+  'an unauthorized profile update returns without exposing a row'
+);
+
+select results_eq(
   $$select count(*)::integer from public.projects$$,
   $$values (0)$$,
   'another user cannot read the project'
@@ -95,6 +126,12 @@ select set_config(
   'request.jwt.claims',
   '{"sub":"11111111-1111-4111-8111-111111111111","role":"authenticated"}',
   true
+);
+
+select results_eq(
+  $$select display_name from public.profiles$$,
+  $$values ('Owner'::text)$$,
+  'the unauthorized profile update changed nothing'
 );
 
 select results_eq(
@@ -133,4 +170,3 @@ select lives_ok(
 
 select * from finish();
 rollback;
-

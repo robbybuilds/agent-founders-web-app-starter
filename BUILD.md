@@ -26,6 +26,11 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - Authentication covers sign up, confirmation, sign in, sign out, recovery, and password updates.
 - Protected dashboard, Projects CRUD, and account settings are implemented.
 - The local agent skill, member guides, access process, release process, license, CI, and Dependabot configuration are present.
+- The README includes one copy-and-paste prompt that orients a new coding agent, protects the approved product direction, and requires a plan before implementation.
+- The auth callback accepts only the PKCE code flow, account password changes require the current password, and browser-visible configuration rejects Supabase secret keys.
+- The repository policy gate scans text files for common committed credential formats without relying on a small extension list.
+- Database tests cover profile isolation, project isolation, rejected foreign ownership, and blocked ownership reassignment.
+- Production guidance covers secure password changes, custom SMTP, rate limits, CAPTCHA decisions, Security Advisor, owner MFA, backups, and second-account access checks.
 - Public and login screens pass desktop and mobile browser checks.
 - Pull request 1 is merged, so the complete starter is now on the default `main` branch.
 
@@ -48,10 +53,12 @@ Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest 
 - The migration applied cleanly to temporary PostgreSQL 16.14.
 - A local SQL harness proved owner CRUD, cross-user read isolation, blocked cross-user insert, and no-op cross-user update and delete.
 - `pnpm audit --prod --audit-level=high` reported no known vulnerabilities.
+- A standard security scan reviewed the authentication, authorization, database, secret handling, and deployment surfaces. Its four findings were fixed before this release candidate.
 
 ## Known Limits
 
 - The repository has not been transferred to an Agent Founders Club organization.
+- The GitHub repository has not yet been marked as a template.
 - Supabase and Vercel production projects have not been connected.
 - The local database suite could not run because this Mac has no Docker-compatible runtime.
 - Authenticated CRUD browser tests still require local or hosted Supabase test credentials.

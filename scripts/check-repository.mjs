@@ -33,25 +33,6 @@ const requiredFiles = [
   "supabase/tests/projects_rls.test.sql",
 ];
 
-const textExtensions = new Set([
-  ".css",
-  ".env",
-  ".example",
-  ".js",
-  ".json",
-  ".jsx",
-  ".md",
-  ".mdc",
-  ".mjs",
-  ".mts",
-  ".sql",
-  ".toml",
-  ".ts",
-  ".tsx",
-  ".yaml",
-  ".yml",
-]);
-
 export function findForbiddenDependencies(packageJson) {
   const installed = {
     ...packageJson.dependencies,
@@ -88,6 +69,38 @@ export function findSecretLikeValues(content) {
     findings.push("Stripe live secret key");
   }
 
+  if (/\bsb_secret_[A-Za-z0-9_-]{20,}\b/.test(content)) {
+    findings.push("Supabase secret key");
+  }
+
+  if (/\bAKIA[A-Z0-9]{16}\b/.test(content)) {
+    findings.push("AWS access key");
+  }
+
+  const assignedCredentialPatterns = [
+    /\b([A-Z][A-Z0-9_]*(?:KEY|TOKEN|SECRET|PASSWORD))\s*=\s*["']?([A-Za-z0-9_./+=-]{16,})/g,
+    /\b([A-Za-z][A-Za-z0-9_-]*(?:Key|Token|Secret|Password))\s*[:=]\s*["']([A-Za-z0-9_./+=-]{16,})["']/g,
+  ];
+
+  for (const pattern of assignedCredentialPatterns) {
+    for (const match of content.matchAll(pattern)) {
+      const name = match[1];
+      const value = match[2];
+      const isBrowserKey = /(?:NEXT_PUBLIC|PUBLISHABLE|ANON)/i.test(name);
+      const isPlaceholder = /^(?:your|example|test|placeholder|fake|dummy|redacted|changeme|x{4,})/i.test(
+        value,
+      );
+      const hasDedicatedCheck =
+        /SUPABASE_SERVICE_ROLE_KEY/i.test(name) ||
+        /^(?:sb_secret_|sk-(?:proj-)?|gh[pousr]_|sk_live_|AKIA)/.test(value);
+
+      if (!isBrowserKey && !isPlaceholder && !hasDedicatedCheck) {
+        findings.push("assigned credential");
+        return findings;
+      }
+    }
+  }
+
   return findings;
 }
 
@@ -100,8 +113,8 @@ function repositoryFiles(root) {
     .filter(Boolean);
 }
 
-function isTextFile(file) {
-  return textExtensions.has(path.extname(file)) || path.basename(file) === ".env.example";
+export function isProbablyText(content) {
+  return !content.subarray(0, 8192).includes(0);
 }
 
 export function checkRepository(root = process.cwd()) {
@@ -131,8 +144,14 @@ export function checkRepository(root = process.cwd()) {
     failures.push(`Real environment file is tracked: ${file}`);
   }
 
-  for (const file of files.filter(isTextFile)) {
-    const content = readFileSync(path.join(root, file), "utf8");
+  for (const file of files) {
+    const bytes = readFileSync(path.join(root, file));
+
+    if (!isProbablyText(bytes)) {
+      continue;
+    }
+
+    const content = bytes.toString("utf8");
 
     for (const finding of findSecretLikeValues(content)) {
       failures.push(`${file}: possible ${finding}`);
