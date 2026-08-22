@@ -33,6 +33,7 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - Production guidance covers secure password changes, custom SMTP, rate limits, CAPTCHA decisions, Security Advisor, owner MFA, backups, and second-account access checks.
 - Public and login screens pass desktop and mobile browser checks.
 - Pull request 1 is merged, so the complete starter is now on the default `main` branch.
+- GitHub recognizes the private repository as a template.
 
 ## In Progress
 
@@ -54,11 +55,11 @@ Fix the `robbybuilds` Actions billing or spending-limit block, rerun the latest 
 - A local SQL harness proved owner CRUD, cross-user read isolation, blocked cross-user insert, and no-op cross-user update and delete.
 - `pnpm audit --prod --audit-level=high` reported no known vulnerabilities.
 - A standard security scan reviewed the authentication, authorization, database, secret handling, and deployment surfaces. Its four findings were fixed before this release candidate.
+- A new clone of the GitHub repository completed `pnpm install --frozen-lockfile` and `pnpm check` at commit `d5765f6` without relying on local generated files.
 
 ## Known Limits
 
 - The repository has not been transferred to an Agent Founders Club organization.
-- The GitHub repository has not yet been marked as a template.
 - Supabase and Vercel production projects have not been connected.
 - The local database suite could not run because this Mac has no Docker-compatible runtime.
 - Authenticated CRUD browser tests still require local or hosted Supabase test credentials.
