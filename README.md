@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agent Founders Web App Starter
 
-## Getting Started
+I built this starter so you don't have to make fifty technical decisions before you can build the thing you actually care about.
 
-First, run the development server:
+You get a working Next.js app with Supabase authentication, a database, private user data, a real example feature, tests, and a clean path to Vercel. Your coding agent gets a set of rules that keeps it from changing the stack every time you start a new session.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Start Here
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. Click **Use this template** on GitHub.
+2. Choose your account as the owner.
+3. Give your app a name and choose **Private**.
+4. Open [the setup guide](docs/01-setup.md) and follow it from the top.
+5. Come back here when the setup guide says you're done.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+When setup is complete, you should be able to create an account, sign in, create a project, and see that project after you refresh the page.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Build Your App
 
-## Learn More
+Open [PRODUCT.md](PRODUCT.md) and replace the starter product with the app you want to build. Then open [the agent guide](docs/03-build-with-your-agent.md) and use the first prompt with your coding agent.
 
-To learn more about Next.js, take a look at the following resources:
+Your agent will read these files before it works:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [AGENTS.md](AGENTS.md) tells it how to work in this repository.
+- [PRODUCT.md](PRODUCT.md) tells it what you're building.
+- [BUILD.md](BUILD.md) tells it what has happened and what comes next.
+- [ARCHITECTURE.md](ARCHITECTURE.md) records the technical decisions that should stay stable.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You shouldn't have to paste your entire project history into every new conversation. `BUILD.md` carries the important parts forward.
 
-## Deploy on Vercel
+## The Commands You'll Use
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`pnpm dev` starts the app on your computer.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`pnpm check` runs the main code checks before you commit or deploy.
+
+`pnpm db:reset` deletes and rebuilds your local development database from the committed migrations. This command destroys local data. It does not touch production unless you change the command.
+
+## Guides
+
+- [Set up the starter](docs/01-setup.md)
+- [Shape your product](docs/02-shape-your-product.md)
+- [Build with your agent](docs/03-build-with-your-agent.md)
+- [Change the database](docs/04-change-the-database.md)
+- [Deploy to Vercel](docs/05-deploy.md)
+- [Fix common problems](docs/06-troubleshooting.md)
+- [Look up an unfamiliar word](docs/glossary.md)
+- [Check a release](docs/release-checklist.md)
+
+If something doesn't work, don't start over. Open [the troubleshooting guide](docs/06-troubleshooting.md), save the exact error, and give that evidence to your agent.
