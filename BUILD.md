@@ -30,11 +30,11 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 
 ## In Progress
 
-Run the database and RLS suite on GitHub's Docker-backed Linux runner.
+Clear the GitHub Actions account block and run the committed CI workflow.
 
 ## Next Exact Task
 
-Push `codex/starter-v1`, inspect both CI jobs, and fix any database test failure before merging.
+Fix the `robbybuilds` Actions billing or spending-limit block, rerun CI run `32575411917`, and inspect both jobs before merging.
 
 ## Evidence
 
@@ -44,6 +44,9 @@ Push `codex/starter-v1`, inspect both CI jobs, and fix any database test failure
 - `pnpm build`
 - `pnpm test:e2e` with 8 passing browser tests
 - `python3 .../quick_validate.py .agents/skills/build-next-feature`
+- The migration applied cleanly to temporary PostgreSQL 16.14.
+- A local SQL harness proved owner CRUD, cross-user read isolation, blocked cross-user insert, and no-op cross-user update and delete.
+- `pnpm audit --prod --audit-level=high` reported no known vulnerabilities.
 
 ## Known Limits
 
@@ -51,3 +54,4 @@ Push `codex/starter-v1`, inspect both CI jobs, and fix any database test failure
 - Supabase and Vercel production projects have not been connected.
 - The local database suite could not run because this Mac has no Docker-compatible runtime.
 - Authenticated CRUD browser tests still require local or hosted Supabase test credentials.
+- GitHub rejected both CI jobs before runner startup because the account has a failed payment or Actions spending-limit block.
