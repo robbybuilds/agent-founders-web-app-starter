@@ -13,6 +13,11 @@ updates:
       development-dependencies:
         dependency-type: development
     open-pull-requests-limit: 5
+    ignore:
+      # typescript-eslint does not support TypeScript 7 yet. Remove this once
+      # eslint-config-next ships typescript-eslint with TS 7 support.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
