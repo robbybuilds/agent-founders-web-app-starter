@@ -2,6 +2,8 @@
 
 The starter already knows how to be a secure web app. It does not know what you want to build.
 
+If you have not run `pnpm init:app` yet, run it now so `BUILD.md` starts from your day zero instead of the starter's history.
+
 Open `PRODUCT.md`. Replace Project Desk with your product. Keep the first version specific.
 
 Write down:

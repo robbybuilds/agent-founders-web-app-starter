@@ -10,3 +10,7 @@
 - Added a beginner-friendly copy-and-paste agent kickoff prompt.
 - Hardened confirmation callbacks, password changes, public key validation, secret detection, database function permissions, and cross-user RLS tests.
 - Expanded production security guidance and the release checklist.
+- Added `pnpm init:app` so a new copy of the template starts its build record at day zero.
+- Added the payments guide and the AI feature guide.
+- Moved internal build plans and specs under `docs/maintainers`.
+- Added a weekly scheduled production dependency audit.

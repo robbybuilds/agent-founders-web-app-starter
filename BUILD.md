@@ -35,6 +35,10 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - Pull request 1 is merged, so the complete starter is now on the default `main` branch.
 - GitHub recognizes the private repository as a template.
 - GitHub Actions passes both the application and database/RLS jobs on `main`.
+- The internal v1 plans and specs moved under `docs/maintainers`, keeping the member docs tree clean.
+- `pnpm init:app` resets `BUILD.md` and `CHANGELOG.md` to day zero for a new copy of the template, and refuses to run against the starter repository itself.
+- Member guides cover adding payments (Stripe Checkout, verified webhook, RLS-protected subscriptions) and adding an AI feature (server-only Claude API call with validated input).
+- A weekly scheduled workflow audits production dependencies for high-severity vulnerabilities, so problems surface between pushes too. GitHub's dependency-review action was evaluated and rejected: it requires Advanced Security on private repositories, so it would fail in every member's copy.
 
 ## In Progress
 
