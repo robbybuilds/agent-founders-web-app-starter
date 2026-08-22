@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js, React, TypeScript strict, Tailwind CSS, shadcn/ui, Supabase, Vitest, Playwright, Vercel, pnpm
 
-**Spec:** `docs/superpowers/specs/2026-08-22-web-app-starter-v1-design.md`
+**Spec:** `docs/maintainers/specs/2026-08-22-web-app-starter-v1-design.md`
 
 ## Global Constraints
 
