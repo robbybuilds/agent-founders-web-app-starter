@@ -16,7 +16,15 @@ When setup is complete, you should be able to create an account, sign in, create
 
 ## Build Your App
 
-Open [PRODUCT.md](PRODUCT.md) and replace the starter product with the app you want to build. Then open [the agent guide](docs/03-build-with-your-agent.md) and use the first prompt with your coding agent.
+First, run this once:
+
+```bash
+pnpm init:app
+```
+
+It resets `BUILD.md` and `CHANGELOG.md` so your build record starts at your day zero instead of the starter's history. Your agent reads `BUILD.md` to know where the project stands, so it should describe your app, not this template.
+
+Then open [PRODUCT.md](PRODUCT.md) and replace the starter product with the app you want to build. Then open [the agent guide](docs/03-build-with-your-agent.md) and use the first prompt with your coding agent.
 
 Or start a fresh session with your coding agent and paste this whole prompt:
 
@@ -66,6 +74,8 @@ You shouldn't have to paste your entire project history into every new conversat
 - [Understand the included agent skill](docs/agent-skills.md)
 - [Change the database](docs/04-change-the-database.md)
 - [Deploy to Vercel](docs/05-deploy.md)
+- [Add payments when you're ready to charge](docs/07-add-payments.md)
+- [Add an AI feature safely](docs/08-add-ai.md)
 - [Fix common problems](docs/06-troubleshooting.md)
 - [Look up an unfamiliar word](docs/glossary.md)
 - [Check a release](docs/release-checklist.md)
