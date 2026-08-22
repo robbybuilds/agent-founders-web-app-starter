@@ -13,4 +13,4 @@
 - Added `pnpm init:app` so a new copy of the template starts its build record at day zero.
 - Added the payments guide and the AI feature guide.
 - Moved internal build plans and specs under `docs/maintainers`.
-- Added a dependency review check on pull requests and a weekly production dependency audit.
+- Added a weekly scheduled production dependency audit.

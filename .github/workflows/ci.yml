@@ -12,20 +12,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  dependency-review:
-    name: Dependency review
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v5
-
-      - name: Review new dependencies for known vulnerabilities
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-
   application:
     name: Application checks
     runs-on: ubuntu-latest

@@ -38,7 +38,7 @@ Project Desk, the canonical example described in `PRODUCT.md`.
 - The internal v1 plans and specs moved under `docs/maintainers`, keeping the member docs tree clean.
 - `pnpm init:app` resets `BUILD.md` and `CHANGELOG.md` to day zero for a new copy of the template, and refuses to run against the starter repository itself.
 - Member guides cover adding payments (Stripe Checkout, verified webhook, RLS-protected subscriptions) and adding an AI feature (server-only Claude API call with validated input).
-- Pull requests run a dependency review that fails on newly introduced high-severity vulnerabilities, and a weekly scheduled audit checks production dependencies.
+- A weekly scheduled workflow audits production dependencies for high-severity vulnerabilities, so problems surface between pushes too. GitHub's dependency-review action was evaluated and rejected: it requires Advanced Security on private repositories, so it would fail in every member's copy.
 
 ## In Progress
 
