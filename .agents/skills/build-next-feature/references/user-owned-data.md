@@ -9,6 +9,7 @@ Use this check when a feature stores records that belong to one signed-in user.
 - Add database constraints for allowed values and length limits.
 - Add an index that begins with `user_id` for common user-scoped queries.
 - Enable RLS before granting access to authenticated users.
+- Add explicit grants for only the operations the application needs. Do not rely on Supabase project defaults.
 
 ## Policies
 
@@ -19,6 +20,7 @@ Create separate policies for select, insert, update, and delete.
 - Update uses both `using` and `with check`.
 - Delete uses `using`.
 - Scope policies to the `authenticated` role.
+- Never use `user_metadata` for authorization because the user can edit it.
 
 Use `(select auth.uid())` in policies so Postgres can evaluate the identity once per statement.
 
@@ -32,4 +34,3 @@ Add pgTAP coverage proving:
 - another user deletes zero rows
 
 Regenerate `src/types/database.ts`, then run `pnpm db:reset`, `pnpm test:db`, and `pnpm check`.
-

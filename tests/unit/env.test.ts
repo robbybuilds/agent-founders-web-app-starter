@@ -31,4 +31,13 @@ describe("readPublicEnv", () => {
       }),
     ).toThrow("NEXT_PUBLIC_SUPABASE_URL");
   });
+
+  it("rejects a Supabase secret key in browser-visible configuration", () => {
+    expect(() =>
+      readPublicEnv({
+        NEXT_PUBLIC_SUPABASE_URL: "https://demo.supabase.co",
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_do_not_expose_this",
+      }),
+    ).toThrow("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+  });
 });

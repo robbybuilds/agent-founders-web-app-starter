@@ -7,4 +7,6 @@
 - Added Next.js 16, React 19, Tailwind 4, shadcn/ui, and Supabase foundations.
 - Added authentication, protected routes, account settings, and Projects CRUD.
 - Added SQL migrations, RLS policies, pgTAP tests, unit tests, browser tests, and CI.
-
+- Added a beginner-friendly copy-and-paste agent kickoff prompt.
+- Hardened confirmation callbacks, password changes, public key validation, secret detection, database function permissions, and cross-user RLS tests.
+- Expanded production security guidance and the release checklist.

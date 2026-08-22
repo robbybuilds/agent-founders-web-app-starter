@@ -49,6 +49,7 @@ Use `BUILD.md` as the baton between sessions. Do not infer project state from me
 - Treat committed migrations as the database source of truth.
 - Never make an unrecorded production schema change.
 - Enable RLS on every table exposed through the Supabase Data API.
+- Grant each API role only the table operations it needs. Do not rely on project default grants.
 - Add explicit select, insert, update, and delete policies for user-owned tables.
 - Use `with check` for insert and update ownership rules.
 - Add database constraints for facts the database can enforce.
@@ -61,10 +62,12 @@ Use `BUILD.md` as the baton between sessions. Do not infer project state from me
 - Never commit secrets or real `.env` files.
 - Never use a secret or service-role key in browser code.
 - Never trust authorization performed only in the browser.
+- Never use user-editable `user_metadata` for roles, ownership, or authorization.
 - Verify the signed-in user on the server for protected operations.
 - Treat form fields, URL parameters, uploaded files, and external responses as untrusted input.
 - Validate mutation input on the server.
 - Do not render unsanitized user HTML.
+- Keep privileged `security definer` functions out of exposed schemas when possible. Restrict execute access and set an empty search path when one is required.
 - Use neutral authentication errors that do not reveal whether an account exists.
 - Do not weaken an RLS policy to make a failing query pass.
 

@@ -11,6 +11,11 @@ export const passwordSchema = z
   .min(8, "Use at least 8 characters.")
   .max(72, "Use no more than 72 characters.");
 
+export const passwordChangeSchema = z.object({
+  currentPassword: z.string().min(1, "Enter your current password."),
+  password: passwordSchema,
+});
+
 export const loginSchema = z.object({
   email: emailSchema,
   password: z.string().min(1, "Enter your password."),
@@ -40,4 +45,3 @@ export function safeRedirectPath(value: string | null | undefined) {
 
   return `${target.pathname}${target.search}${target.hash}`;
 }
-

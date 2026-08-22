@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   emailSchema,
   loginSchema,
+  passwordChangeSchema,
   passwordSchema,
   safeRedirectPath,
   signupSchema,
@@ -18,6 +19,22 @@ describe("authentication validation", () => {
   it("requires passwords with at least eight characters", () => {
     expect(passwordSchema.safeParse("short").success).toBe(false);
     expect(passwordSchema.safeParse("long-enough").success).toBe(true);
+  });
+
+  it("requires the current password before an account password change", () => {
+    expect(
+      passwordChangeSchema.safeParse({
+        currentPassword: "",
+        password: "new-password",
+      }).success,
+    ).toBe(false);
+
+    expect(
+      passwordChangeSchema.safeParse({
+        currentPassword: "old-password",
+        password: "new-password",
+      }).success,
+    ).toBe(true);
   });
 
   it("requires both login fields", () => {

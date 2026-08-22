@@ -2,8 +2,10 @@
 
 import { useActionState } from "react";
 
-import { updatePassword } from "@/app/(auth)/actions";
-import { updateProfile } from "@/app/(app)/settings/actions";
+import {
+  updateAccountPassword,
+  updateProfile,
+} from "@/app/(app)/settings/actions";
 import { SubmitButton } from "@/components/app/submit-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field";
@@ -38,10 +40,25 @@ export function ProfileForm({ displayName }: { displayName: string }) {
 }
 
 export function PasswordForm() {
-  const [state, action] = useActionState(updatePassword, initialState);
+  const [state, action] = useActionState(updateAccountPassword, initialState);
 
   return (
     <form action={action} className="max-w-xl space-y-5">
+      <Field data-invalid={Boolean(state.fieldErrors?.currentPassword)}>
+        <FieldLabel htmlFor="settings-current-password">Current password</FieldLabel>
+        <Input
+          id="settings-current-password"
+          name="currentPassword"
+          type="password"
+          autoComplete="current-password"
+          required
+        />
+        {state.fieldErrors?.currentPassword?.map((error) => (
+          <FieldDescription key={error} className="text-destructive">
+            {error}
+          </FieldDescription>
+        ))}
+      </Field>
       <Field data-invalid={Boolean(state.fieldErrors?.password)}>
         <FieldLabel htmlFor="settings-password">New password</FieldLabel>
         <Input
@@ -68,4 +85,3 @@ export function PasswordForm() {
     </form>
   );
 }
-

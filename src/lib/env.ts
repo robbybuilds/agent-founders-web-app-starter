@@ -2,7 +2,12 @@ import { z } from "zod";
 
 const publicEnvSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
+    .string()
+    .min(1)
+    .refine((key) => !key.startsWith("sb_secret_"), {
+      message: "Use a publishable key here, never a secret key.",
+    }),
 });
 
 type Environment = Record<string, string | undefined>;
