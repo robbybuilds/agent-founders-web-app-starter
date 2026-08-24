@@ -2,42 +2,65 @@
 
 Deploy after the app works locally and the release checklist passes.
 
-## 1. Create Hosted Supabase
+## 1. Prepare Production Convex
 
-Create a Supabase project. Save its project URL and publishable key.
+Your Convex project has two deployments: the development one that `npx convex dev` uses, and a production one that starts empty. Set up authentication keys on the production deployment once:
 
-Link your local repository to the project. Preview and push your migrations using the commands in [the database guide](04-change-the-database.md).
+```bash
+npx @convex-dev/auth --prod
+```
 
-In Supabase Auth settings, keep email confirmations on and enable secure password changes. Add your production site URL. Add `http://localhost:3000` as a local redirect URL.
+Then create a deploy key for Vercel:
 
-Before real users sign up:
+1. Open your project on the [Convex dashboard](https://dashboard.convex.dev).
+2. Open **Settings**, then **Deploy Keys**, on the production deployment.
+3. Generate a deploy key and copy it.
 
-1. Configure custom SMTP for authentication emails. Supabase's built-in sender is for testing and has strict delivery limits. Keep the SMTP password in Supabase, not in this repository.
-2. Review **Authentication**, then **Rate Limits**. Choose limits that fit your launch.
-3. Decide whether public signup needs CAPTCHA. If you enable it, have your agent add and test the matching CAPTCHA field in the signup, login, and reset forms.
-4. Open Supabase's Security Advisor and resolve every warning you understand. Ask for help before applying a suggested change you do not understand.
-5. Turn on MFA for your Supabase and GitHub owner accounts.
-6. Choose a backup plan that matches the harm you would face if the data disappeared.
+Treat the deploy key like a password. It never goes in code, in `.env.example`, or in browser variables.
 
 ## 2. Import the Repository in Vercel
 
 Open Vercel and import your private GitHub repository. Vercel should detect Next.js and pnpm.
 
-Add these environment variables:
+Override the **Build Command** with:
 
 ```text
-NEXT_PUBLIC_SUPABASE_URL
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+npx convex deploy --cmd 'pnpm build'
 ```
 
-Use the hosted Supabase values, not the local values.
+This uploads your schema and functions to production Convex, points the build at the production deployment URL, and then builds the app.
 
-## 3. Deploy and Test
+Add one environment variable:
 
-Deploy the app. Open the production URL in a private browser window.
+```text
+CONVEX_DEPLOY_KEY
+```
 
-Create a new account, confirm the email if confirmation is enabled, create a project, sign out, and sign back in. Confirm that the same project appears.
+Paste the deploy key as its value. You do not need to set `NEXT_PUBLIC_CONVEX_URL` in Vercel; the deploy command fills it in during the build.
+
+## 3. Point Convex at Your Site
+
+After the first deploy, tell your production deployment where the app lives:
+
+```bash
+npx convex env set SITE_URL https://your-app.vercel.app --prod
+```
+
+If you set up password reset emails, also set `AUTH_RESEND_KEY` and `AUTH_EMAIL` on production the same way, with `--prod` at the end.
+
+## 4. Deploy and Test
+
+Open the production URL in a private browser window.
+
+Create a new account, create a project, sign out, and sign back in. Confirm that the same project appears.
 
 Use a second account to confirm it cannot open, update, or delete the first account's project.
+
+Before real users sign up:
+
+1. Verify a sending domain in Resend and set `AUTH_EMAIL`, so password reset emails reach people who are not you.
+2. Open the Convex dashboard and read the production logs after your test run. Errors show up there.
+3. Turn on MFA for your Convex, GitHub, and Vercel owner accounts.
+4. Choose a backup plan that matches the harm you would face if the data disappeared. Convex supports scheduled backups from the dashboard.
 
 Run the complete [release checklist](release-checklist.md) before you give the link to a user.

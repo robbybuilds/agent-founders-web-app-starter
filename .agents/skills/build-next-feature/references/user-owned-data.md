@@ -2,35 +2,32 @@
 
 Use this check when a feature stores records that belong to one signed-in user.
 
-## Migration
+## Schema
 
-- Add a non-null `user_id` that references `auth.users(id)` with the intended delete behavior.
-- Default `user_id` to `auth.uid()` when that matches the write path.
-- Add database constraints for allowed values and length limits.
-- Add an index that begins with `user_id` for common user-scoped queries.
-- Enable RLS before granting access to authenticated users.
-- Add explicit grants for only the operations the application needs. Do not rely on Supabase project defaults.
+- Add the table to `convex/schema.ts` with a `userId` field typed `v.id("users")`.
+- Add an index that begins with `userId` for common user-scoped queries.
+- Use `v.union` of `v.literal` values for fields with a fixed set of allowed values.
 
-## Policies
+## Function Rules
 
-Create separate policies for select, insert, update, and delete.
+Ownership is enforced inside every Convex function, not in the schema. Never trust client arguments for identity.
 
-- Select uses `auth.uid() = user_id`.
-- Insert uses `with check`.
-- Update uses both `using` and `with check`.
-- Delete uses `using`.
-- Scope policies to the `authenticated` role.
-- Never use `user_metadata` for authorization because the user can edit it.
+- Read the signed-in user with `getAuthUserId(ctx)` at the top of every function.
+- Queries filter with the `userId` index and return nothing for other users' records. Return `null` for a single record that does not exist or belongs to someone else, so both cases look identical.
+- Creates take no `userId` argument. The function assigns the signed-in user as the owner.
+- Updates and deletes load the record first and refuse when its `userId` does not match the signed-in user.
+- Validate lengths and allowed values inside the mutation before writing.
+- Keep functions the browser must not call in `internalQuery`, `internalMutation`, or `internalAction`.
 
-Use `(select auth.uid())` in policies so Postgres can evaluate the identity once per statement.
+`convex/projects.ts` is the canonical example of all of this.
 
 ## Evidence
 
-Add pgTAP coverage proving:
+Add `convex-test` coverage in `tests/unit/` proving:
 
 - the owner can complete every allowed operation
-- another user reads zero rows
-- another user changes zero rows
-- another user deletes zero rows
+- another user reads nothing
+- another user changes nothing
+- another user deletes nothing
 
-Regenerate `src/types/database.ts`, then run `pnpm db:reset`, `pnpm test:db`, and `pnpm check`.
+`tests/unit/projects-access.test.ts` is the pattern. Then run `pnpm test` and `pnpm check`.

@@ -2,7 +2,7 @@
 
 I built this starter so you don't have to make fifty technical decisions before you can build the thing you actually care about.
 
-You get a working Next.js app with Supabase authentication, a database, private user data, a real example feature, tests, and a clean path to Vercel. Your coding agent gets a set of rules that keeps it from changing the stack every time you start a new session.
+You get a working Next.js app with Convex authentication, a database, private user data, a real example feature, tests, and a clean path to Vercel. Your coding agent gets a set of rules that keeps it from changing the stack every time you start a new session.
 
 ## Start Here
 
@@ -42,9 +42,9 @@ If PRODUCT.md still describes Project Desk, help me replace it with my product. 
 
 Before each feature, show me a small plan. Name the files you expect to change, any database changes, the tests you will write first, and any decision that could affect cost, security, or the product. Wait for my approval before you implement the plan.
 
-Follow the existing stack and patterns. Do not add another database, auth provider, ORM, state library, or paid service unless PRODUCT.md requires it and I approve it. Never expose a secret or service-role key. Never weaken Row Level Security to make a query work. Validate untrusted input on the server. Keep user-owned data protected in the database, not only in the interface.
+Follow the existing stack and patterns. Do not add another database, auth provider, ORM, state library, or paid service unless PRODUCT.md requires it and I approve it. Never expose a secret or deploy key. Enforce ownership inside every Convex function and never trust client arguments for identity. Validate untrusted input on the server. Keep user-owned data protected in the Convex functions, not only in the interface.
 
-Work on one approved task at a time. Run focused tests while you work and run pnpm check before you call a task complete. If the database changes, also run pnpm db:reset and pnpm test:db. Update BUILD.md with what changed, the evidence that passed, anything still uncertain, and the next exact task.
+Work on one approved task at a time. Run focused tests while you work and run pnpm check before you call a task complete. If the database changes, update convex/schema.ts and the ownership tests together.
 
 Start now by reading the four files and reporting what you found. Do not write code yet.
 ```
@@ -62,9 +62,9 @@ You shouldn't have to paste your entire project history into every new conversat
 
 `pnpm dev` starts the app on your computer.
 
-`pnpm check` runs the main code checks before you commit or deploy.
+`pnpm db:dev` runs `npx convex dev`, which syncs your database schema and functions to your Convex development deployment while you work. Keep it running in a second terminal.
 
-`pnpm db:reset` deletes and rebuilds your local development database from the committed migrations. This command destroys local data. It does not touch production unless you change the command.
+`pnpm check` runs the main code checks before you commit or deploy.
 
 ## Guides
 
