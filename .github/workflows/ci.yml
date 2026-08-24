@@ -11,6 +11,10 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # A placeholder is enough for checks that never talk to a deployment.
+  NEXT_PUBLIC_CONVEX_URL: https://example.convex.cloud
+
 jobs:
   application:
     name: Application checks
@@ -50,34 +54,3 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
-
-  database:
-    name: Database and RLS checks
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v6
-        with:
-          version: 11.19.0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Start local Supabase
-        run: pnpm db:start
-
-      - name: Rebuild from migrations
-        run: pnpm db:reset
-
-      - name: Run database tests
-        run: pnpm test:db

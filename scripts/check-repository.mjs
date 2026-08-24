@@ -7,6 +7,8 @@ import { pathToFileURL } from "node:url";
 
 const forbiddenDependencies = [
   "@clerk/nextjs",
+  "@supabase/ssr",
+  "@supabase/supabase-js",
   "@prisma/client",
   "@reduxjs/toolkit",
   "@trpc/client",
@@ -28,9 +30,9 @@ const requiredFiles = [
   ".env.example",
   "docs/01-setup.md",
   "docs/06-troubleshooting.md",
-  "supabase/config.toml",
-  "supabase/migrations/20260822000000_initial_schema.sql",
-  "supabase/tests/projects_rls.test.sql",
+  "convex/schema.ts",
+  "convex/auth.ts",
+  "tests/unit/projects-access.test.ts",
 ];
 
 export function findForbiddenDependencies(packageJson) {
@@ -46,11 +48,11 @@ export function findSecretLikeValues(content) {
   const findings = [];
 
   if (
-    /SUPABASE_SERVICE_ROLE_KEY\s*[:=]\s*["']?(?!your-|example|test|placeholder)[^\s"']{12,}/i.test(
+    /CONVEX_DEPLOY_KEY\s*[:=]\s*["']?(?!your-|example|test|placeholder)[^\s"']{12,}/i.test(
       content,
     )
   ) {
-    findings.push("assigned service-role key");
+    findings.push("assigned deploy key");
   }
 
   if (/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(content)) {
@@ -69,8 +71,8 @@ export function findSecretLikeValues(content) {
     findings.push("Stripe live secret key");
   }
 
-  if (/\bsb_secret_[A-Za-z0-9_-]{20,}\b/.test(content)) {
-    findings.push("Supabase secret key");
+  if (/\b(?:prod|dev|preview):[A-Za-z0-9-]+\|[A-Za-z0-9+/=_-]{20,}/.test(content)) {
+    findings.push("Convex deploy key");
   }
 
   if (/\bAKIA[A-Z0-9]{16}\b/.test(content)) {
@@ -91,8 +93,9 @@ export function findSecretLikeValues(content) {
         value,
       );
       const hasDedicatedCheck =
-        /SUPABASE_SERVICE_ROLE_KEY/i.test(name) ||
-        /^(?:sb_secret_|sk-(?:proj-)?|gh[pousr]_|sk_live_|AKIA)/.test(value);
+        /CONVEX_DEPLOY_KEY/i.test(name) ||
+        /^(?:sk-(?:proj-)?|gh[pousr]_|sk_live_|AKIA)/.test(value) ||
+        /^(?:prod|dev|preview):/.test(value);
 
       if (!isBrowserKey && !isPlaceholder && !hasDedicatedCheck) {
         findings.push("assigned credential");
@@ -157,7 +160,7 @@ export function checkRepository(root = process.cwd()) {
       failures.push(`${file}: possible ${finding}`);
     }
 
-    if ((file.startsWith("src/") || file.startsWith("supabase/")) && /\b(?:TODO|FIXME|TBD)\b/.test(content)) {
+    if ((file.startsWith("src/") || file.startsWith("convex/")) && /\b(?:TODO|FIXME|TBD)\b/.test(content)) {
       failures.push(`${file}: unresolved placeholder marker`);
     }
   }
