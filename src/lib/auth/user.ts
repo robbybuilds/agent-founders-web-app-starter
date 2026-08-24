@@ -1,23 +1,23 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 
-import { createClient } from "@/lib/supabase/server";
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
+
+import { api } from "@convex/_generated/api";
 
 export const getCurrentUser = cache(async () => {
-  const supabase = await createClient();
-  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+  const token = await convexAuthNextjsToken();
 
-  if (claimsError || !claimsData?.claims?.sub) {
+  if (!token) {
     return null;
   }
 
-  const { data, error } = await supabase.auth.getUser();
-
-  if (error) {
+  try {
+    return await fetchQuery(api.users.viewer, {}, { token });
+  } catch {
     return null;
   }
-
-  return data.user;
 });
 
 export async function requireUser() {

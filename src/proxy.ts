@@ -1,9 +1,24 @@
-import type { NextRequest } from "next/server";
+import {
+  convexAuthNextjsMiddleware,
+  createRouteMatcher,
+  nextjsMiddlewareRedirect,
+} from "@convex-dev/auth/nextjs/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 
-import { updateSession } from "@/lib/supabase/proxy";
+const isProtectedRoute = createRouteMatcher([
+  "/dashboard(.*)",
+  "/projects(.*)",
+  "/settings(.*)",
+]);
 
-export async function proxy(request: NextRequest) {
-  return updateSession(request);
+const handleAuth = convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
+  if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
+    return nextjsMiddlewareRedirect(request, "/login");
+  }
+});
+
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
+  return handleAuth(request, event);
 }
 
 export const config = {
@@ -11,4 +26,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
-

@@ -1,12 +1,10 @@
 import { z } from "zod";
 
 const publicEnvSchema = z.object({
-  NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z
-    .string()
-    .min(1)
-    .refine((key) => !key.startsWith("sb_secret_"), {
-      message: "Use a publishable key here, never a secret key.",
+  NEXT_PUBLIC_CONVEX_URL: z
+    .url("Use your deployment URL, like https://your-deployment.convex.cloud.")
+    .refine((value) => !value.includes("|"), {
+      message: "This looks like a deploy key. Use the deployment URL here.",
     }),
 });
 
@@ -27,12 +25,13 @@ export function readPublicEnv(environment: Environment) {
   }
 
   return {
-    supabaseUrl: result.data.NEXT_PUBLIC_SUPABASE_URL,
-    supabasePublishableKey:
-      result.data.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    convexUrl: result.data.NEXT_PUBLIC_CONVEX_URL,
   };
 }
 
 export function getPublicEnv() {
-  return readPublicEnv(process.env);
+  // List each variable by name so Next.js can inline it for the browser.
+  return readPublicEnv({
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
+  });
 }

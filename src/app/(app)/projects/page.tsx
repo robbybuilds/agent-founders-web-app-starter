@@ -1,22 +1,18 @@
 import { Plus } from "lucide-react";
 import Link from "next/link";
 
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
+
 import { EmptyState } from "@/components/app/empty-state";
 import { ProjectList } from "@/components/projects/project-list";
 import { buttonVariants } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
+import { api } from "@convex/_generated/api";
 
 export default async function ProjectsPage() {
-  const supabase = await createClient();
-  const { data: projects, error } = await supabase
-    .from("projects")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw new Error("Could not load your projects.");
-  }
+  const token = await convexAuthNextjsToken();
+  const projects = await fetchQuery(api.projects.list, {}, { token });
 
   return (
     <div>
@@ -40,4 +36,3 @@ export default async function ProjectsPage() {
     </div>
   );
 }
-
