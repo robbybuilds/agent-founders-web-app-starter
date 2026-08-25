@@ -1,11 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { fetchQuery } from "convex/nextjs";
+
 import { updateProject } from "@/app/(app)/projects/actions";
 import { DeleteProjectDialog } from "@/components/projects/delete-project-dialog";
 import { ProjectForm } from "@/components/projects/project-form";
-import { createClient } from "@/lib/supabase/server";
 import { projectIdSchema } from "@/lib/validation/project";
+import { api } from "@convex/_generated/api";
 
 export default async function ProjectPage({
   params,
@@ -22,16 +25,10 @@ export default async function ProjectPage({
     notFound();
   }
 
-  const supabase = await createClient();
-  const { data: project, error } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("id", idResult.data)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error("Could not load the project.");
-  }
+  const token = await convexAuthNextjsToken();
+  // The query returns null for a project that does not exist or belongs
+  // to someone else, so both cases look like the same not-found page.
+  const project = await fetchQuery(api.projects.get, { id: idResult.data }, { token });
 
   if (!project) {
     notFound();
@@ -48,7 +45,7 @@ export default async function ProjectPage({
           <p className="text-sm text-muted-foreground">Project</p>
           <h1 className="mt-1 text-2xl font-semibold">{project.name}</h1>
         </div>
-        <DeleteProjectDialog projectId={project.id} />
+        <DeleteProjectDialog projectId={project._id} />
       </div>
 
       {queryError === "delete" ? (

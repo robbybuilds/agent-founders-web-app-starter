@@ -1,12 +1,34 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { fetchAction, fetchMutation } from "convex/nextjs";
+import { ConvexError } from "convex/values";
 
 import type { FormState } from "@/lib/action-state";
-import { requireUser } from "@/lib/auth/user";
-import { createClient } from "@/lib/supabase/server";
 import { passwordChangeSchema } from "@/lib/validation/auth";
 import { profileSchema } from "@/lib/validation/profile";
+import { api } from "@convex/_generated/api";
+
+async function requireToken() {
+  const token = await convexAuthNextjsToken();
+
+  if (!token) {
+    redirect("/login");
+  }
+
+  return token;
+}
+
+function failureMessage(error: unknown, fallback: string) {
+  if (error instanceof ConvexError && typeof error.data === "string") {
+    return error.data;
+  }
+
+  return fallback;
+}
 
 export async function updateAccountPassword(
   _previousState: FormState,
@@ -24,25 +46,25 @@ export async function updateAccountPassword(
     };
   }
 
-  const user = await requireUser();
-  const supabase = await createClient();
-  const { data: reauthenticated, error: reauthenticationError } =
-    await supabase.auth.signInWithPassword({
-      email: user.email ?? "",
-      password: result.data.currentPassword,
-    });
+  const token = await requireToken();
 
-  if (reauthenticationError || reauthenticated.user?.id !== user.id) {
-    return { message: "Your current password did not work. Please try again." };
-  }
-
-  const { error } = await supabase.auth.updateUser({
-    password: result.data.password,
-    current_password: result.data.currentPassword,
-  });
-
-  if (error) {
-    return { message: "We could not update your password. Please try again." };
+  try {
+    // The Convex action verifies the current password before changing anything.
+    await fetchAction(
+      api.users.changePassword,
+      {
+        currentPassword: result.data.currentPassword,
+        newPassword: result.data.password,
+      },
+      { token },
+    );
+  } catch (error) {
+    return {
+      message: failureMessage(
+        error,
+        "We could not update your password. Please try again.",
+      ),
+    };
   }
 
   return { success: true, message: "Your password is updated." };
@@ -63,22 +85,21 @@ export async function updateProfile(
     };
   }
 
-  const user = await requireUser();
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("profiles")
-    .upsert({ id: user.id, display_name: result.data.displayName });
+  const token = await requireToken();
 
-  if (error) {
-    return { message: "We could not save your profile. Please try again." };
-  }
-
-  const { error: authError } = await supabase.auth.updateUser({
-    data: { display_name: result.data.displayName },
-  });
-
-  if (authError) {
-    return { message: "Your profile was saved, but the header may update after you sign in again." };
+  try {
+    await fetchMutation(
+      api.users.updateProfile,
+      { name: result.data.displayName },
+      { token },
+    );
+  } catch (error) {
+    return {
+      message: failureMessage(
+        error,
+        "We could not save your profile. Please try again.",
+      ),
+    };
   }
 
   revalidatePath("/dashboard");

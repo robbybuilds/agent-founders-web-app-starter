@@ -3,41 +3,33 @@ import { describe, expect, it } from "vitest";
 import { readPublicEnv } from "@/lib/env";
 
 describe("readPublicEnv", () => {
-  it("returns the browser-safe Supabase configuration", () => {
+  it("returns the browser-safe Convex configuration", () => {
     expect(
       readPublicEnv({
-        NEXT_PUBLIC_SUPABASE_URL: "https://demo.supabase.co",
-        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_demo",
+        NEXT_PUBLIC_CONVEX_URL: "https://demo.convex.cloud",
       }),
     ).toEqual({
-      supabaseUrl: "https://demo.supabase.co",
-      supabasePublishableKey: "sb_publishable_demo",
+      convexUrl: "https://demo.convex.cloud",
     });
   });
 
   it("explains which variable is missing", () => {
-    expect(() =>
-      readPublicEnv({
-        NEXT_PUBLIC_SUPABASE_URL: "https://demo.supabase.co",
-      }),
-    ).toThrow("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+    expect(() => readPublicEnv({})).toThrow("NEXT_PUBLIC_CONVEX_URL");
   });
 
-  it("rejects an invalid Supabase URL", () => {
+  it("rejects an invalid Convex URL", () => {
     expect(() =>
       readPublicEnv({
-        NEXT_PUBLIC_SUPABASE_URL: "not-a-url",
-        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_demo",
+        NEXT_PUBLIC_CONVEX_URL: "not-a-url",
       }),
-    ).toThrow("NEXT_PUBLIC_SUPABASE_URL");
+    ).toThrow("NEXT_PUBLIC_CONVEX_URL");
   });
 
-  it("rejects a Supabase secret key in browser-visible configuration", () => {
+  it("rejects a deploy key in browser-visible configuration", () => {
     expect(() =>
       readPublicEnv({
-        NEXT_PUBLIC_SUPABASE_URL: "https://demo.supabase.co",
-        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_secret_do_not_expose_this",
+        NEXT_PUBLIC_CONVEX_URL: "https://demo.convex.cloud|do-not-expose-this",
       }),
-    ).toThrow("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
+    ).toThrow("NEXT_PUBLIC_CONVEX_URL");
   });
 });

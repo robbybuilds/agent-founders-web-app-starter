@@ -42,7 +42,7 @@ Do not build every database function before the interface or every test before t
 
 ## Finish the Session
 
-Run `pnpm check`. Run `pnpm db:reset` and `pnpm test:db` when data changed. Run the relevant Playwright test when a user flow changed.
+Run `pnpm check`. Update and run the ownership tests when data changed. Run the relevant Playwright test when a user flow changed.
 
 Update `BUILD.md` with what changed, decisions, exact evidence, remaining uncertainty, and one next exact task. Do not write an approximate day or vague phase.
 

@@ -2,9 +2,9 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import type { Database } from "@/types/database";
+import type { Doc } from "@convex/_generated/dataModel";
 
-type Project = Database["public"]["Tables"]["projects"]["Row"];
+type Project = Doc<"projects">;
 
 const statusLabels: Record<Project["status"], string> = {
   idea: "Idea",
@@ -17,8 +17,8 @@ export function ProjectList({ projects }: { projects: Project[] }) {
     <div className="divide-y border-y">
       {projects.map((project) => (
         <Link
-          key={project.id}
-          href={`/projects/${project.id}`}
+          key={project._id}
+          href={`/projects/${project._id}`}
           className="group flex min-h-24 items-center gap-4 px-1 py-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           <div className="min-w-0 flex-1">

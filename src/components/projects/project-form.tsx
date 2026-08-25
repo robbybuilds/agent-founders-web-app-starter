@@ -8,9 +8,9 @@ import { Field, FieldDescription, FieldGroup, FieldLabel } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { FormState } from "@/lib/action-state";
-import type { Database } from "@/types/database";
+import type { Doc } from "@convex/_generated/dataModel";
 
-type Project = Database["public"]["Tables"]["projects"]["Row"];
+type Project = Doc<"projects">;
 
 type ProjectFormProps = {
   action: (state: FormState, formData: FormData) => Promise<FormState>;
@@ -24,7 +24,7 @@ export function ProjectForm({ action, project }: ProjectFormProps) {
 
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
-      {project ? <input type="hidden" name="id" value={project.id} /> : null}
+      {project ? <input type="hidden" name="id" value={project._id} /> : null}
 
       <FieldGroup>
         <Field data-invalid={Boolean(state.fieldErrors?.name)}>

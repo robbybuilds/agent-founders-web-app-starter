@@ -11,15 +11,15 @@ describe("findForbiddenDependencies", () => {
     expect(
       findForbiddenDependencies({
         dependencies: { "@prisma/client": "latest", zustand: "latest" },
-        devDependencies: {},
+        devDependencies: { "@supabase/supabase-js": "latest" },
       }),
-    ).toEqual(["@prisma/client", "zustand"]);
+    ).toEqual(["@supabase/supabase-js", "@prisma/client", "zustand"]);
   });
 
   it("allows the approved stack", () => {
     expect(
       findForbiddenDependencies({
-        dependencies: { next: "latest", "@supabase/supabase-js": "latest" },
+        dependencies: { next: "latest", convex: "latest" },
         devDependencies: { vitest: "latest" },
       }),
     ).toEqual([]);
@@ -27,21 +27,21 @@ describe("findForbiddenDependencies", () => {
 });
 
 describe("findSecretLikeValues", () => {
-  it("flags assigned secret keys and private keys", () => {
+  it("flags assigned deploy keys and private keys", () => {
     const content = [
-      `${["SUPABASE", "SERVICE", "ROLE", "KEY"].join("_")}=real-secret-value`,
+      `${["CONVEX", "DEPLOY", "KEY"].join("_")}=real-secret-value`,
       ["-----BEGIN", "PRIVATE KEY-----"].join(" "),
     ].join("\n");
 
     expect(findSecretLikeValues(content)).toEqual([
-      "assigned service-role key",
+      "assigned deploy key",
       "private key material",
     ]);
   });
 
   it("does not flag documentation that names a secret", () => {
     expect(
-      findSecretLikeValues("Never expose SUPABASE_SERVICE_ROLE_KEY in browser code."),
+      findSecretLikeValues("Never expose CONVEX_DEPLOY_KEY in browser code."),
     ).toEqual([]);
   });
 
@@ -51,18 +51,18 @@ describe("findSecretLikeValues", () => {
         [
           [["API", "TOKEN"].join("_"), "very-long-live-credential-value-12345"].join("="),
           [
-            ["SUPABASE", "SECRET", "KEY"].join("_"),
-            ["sb", "secret", "1234567890abcdefghijklmnopqrstuvwxyz"].join("_"),
-          ].join("="),
+            "prod:handy-otter-123",
+            "eyJ2MiI6IjEyMzQ1Njc4OTBhYmNkZWYifQ",
+          ].join("|"),
         ].join("\n"),
       ),
-    ).toEqual(["Supabase secret key", "assigned credential"]);
+    ).toEqual(["Convex deploy key", "assigned credential"]);
   });
 
   it("allows obvious placeholders", () => {
     expect(
       findSecretLikeValues(
-        ["API_TOKEN=your-access-token", "SUPABASE_SECRET_KEY=placeholder"].join("\n"),
+        ["API_TOKEN=your-access-token", "CONVEX_DEPLOY_KEY=placeholder"].join("\n"),
       ),
     ).toEqual([]);
   });

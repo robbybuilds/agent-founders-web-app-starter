@@ -27,18 +27,19 @@ Use `BUILD.md` as the baton between sessions. Do not infer project state from me
 - TypeScript in strict mode
 - Tailwind CSS
 - shadcn/ui primitives
-- Supabase for Postgres, Auth, Storage, and Realtime
-- SQL migrations in `supabase/migrations`
+- Convex for the database, server functions, and authentication
+- Convex Auth with the Password provider
+- The schema in `convex/schema.ts`
 - Vercel
 - pnpm
 
 ## Architecture Rules
 
-- Read data in Server Components unless the browser needs a live subscription.
-- Write data through Server Actions or Route Handlers.
+- Read data in Server Components with `fetchQuery` unless the browser needs a live subscription. Use `preloadQuery` plus `usePreloadedQuery` when a component needs live updates.
+- Write data through Server Actions that call Convex mutations with `fetchMutation` and the auth token.
 - Keep Client Components small and close to the interaction that needs them.
-- Use Supabase Auth unless `PRODUCT.md` documents a requirement it cannot meet.
-- Use Supabase directly. Do not add an ORM by default.
+- Use Convex Auth unless `PRODUCT.md` documents a requirement it cannot meet.
+- Use Convex directly. Do not add an ORM by default.
 - Use Tailwind and existing shadcn primitives before adding another styling system.
 - Do not add global state management until local state and server data are insufficient.
 - Do not add a second database, backend, auth service, or API abstraction without recording the reason in `ARCHITECTURE.md`.
@@ -46,30 +47,28 @@ Use `BUILD.md` as the baton between sessions. Do not infer project state from me
 
 ## Database Rules
 
-- Treat committed migrations as the database source of truth.
+- Treat `convex/schema.ts` as the database source of truth. `npx convex dev` applies it to your development deployment while it runs.
 - Never make an unrecorded production schema change.
-- Enable RLS on every table exposed through the Supabase Data API.
-- Grant each API role only the table operations it needs. Do not rely on project default grants.
-- Add explicit select, insert, update, and delete policies for user-owned tables.
-- Use `with check` for insert and update ownership rules.
-- Add database constraints for facts the database can enforce.
-- Regenerate `src/types/database.ts` after schema changes.
-- Run `pnpm db:reset` and `pnpm test:db` before calling a database change complete.
-- Never run `supabase db reset --linked` against production.
+- Enforce ownership inside every Convex function. Read the signed-in user with `getAuthUserId(ctx)` and never trust client arguments for identity.
+- Give user-owned tables a `userId` field typed `v.id("users")` and an index that begins with `userId`.
+- On every read, return nothing when the record does not belong to the signed-in user. On every write, load the record first and refuse when the owner does not match.
+- Validate lengths and allowed values inside the mutation, the way `convex/projects.ts` does.
+- Never write to `convex/_generated/`. Convex regenerates it.
+- Add `convex-test` coverage in `tests/unit/` proving one user cannot touch another user's records, and run `pnpm test` before calling a database change complete.
 
 ## Security Rules
 
 - Never commit secrets or real `.env` files.
-- Never use a secret or service-role key in browser code.
+- Never use a deploy key or other secret in browser code. Only `NEXT_PUBLIC_CONVEX_URL` is browser-safe.
 - Never trust authorization performed only in the browser.
-- Never use user-editable `user_metadata` for roles, ownership, or authorization.
-- Verify the signed-in user on the server for protected operations.
+- Never trust a client-supplied user id, email, or role. Identity comes from `ctx.auth` via `getAuthUserId(ctx)` inside the Convex function.
+- Verify the signed-in user inside every Convex function that touches user-owned data.
 - Treat form fields, URL parameters, uploaded files, and external responses as untrusted input.
 - Validate mutation input on the server.
 - Do not render unsanitized user HTML.
-- Keep privileged `security definer` functions out of exposed schemas when possible. Restrict execute access and set an empty search path when one is required.
+- Keep privileged work in `internalQuery`, `internalMutation`, and `internalAction` functions that the browser cannot call.
 - Use neutral authentication errors that do not reveal whether an account exists.
-- Do not weaken an RLS policy to make a failing query pass.
+- Do not remove an ownership check to make a failing query pass.
 
 ## Work Process
 
@@ -92,7 +91,7 @@ A task is not complete until:
 
 - the user-facing path works
 - expected empty, loading, validation, and error states exist
-- access control is enforced at the database when data is user-owned
+- ownership is enforced inside every Convex function that touches user-owned data
 - focused tests pass
 - `pnpm lint` passes
 - `pnpm typecheck` passes

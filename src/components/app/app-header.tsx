@@ -1,7 +1,7 @@
-import { FolderKanban, LogOut, Settings } from "lucide-react";
+import { FolderKanban, Settings } from "lucide-react";
 import Link from "next/link";
 
-import { signOut } from "@/app/(auth)/actions";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 import { Button } from "@/components/ui/button";
 
 type AppHeaderProps = {
@@ -30,13 +30,8 @@ export function AppHeader({ email }: AppHeaderProps) {
         <span className="hidden max-w-48 truncate text-xs text-muted-foreground md:block">
           {email}
         </span>
-        <form action={signOut}>
-          <Button type="submit" variant="ghost" size="icon-sm" aria-label="Sign out" title="Sign out">
-            <LogOut />
-          </Button>
-        </form>
+        <SignOutButton />
       </div>
     </header>
   );
 }
-

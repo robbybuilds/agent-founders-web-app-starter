@@ -33,9 +33,9 @@ describe("projectSchema", () => {
 });
 
 describe("projectIdSchema", () => {
-  it("accepts a UUID and rejects a path fragment", () => {
+  it("accepts a Convex id and rejects a path fragment", () => {
     expect(
-      projectIdSchema.safeParse("11111111-1111-4111-8111-111111111111").success,
+      projectIdSchema.safeParse("jd73kvbnq0kz9wmfp1xk2a4qhx7m8t2e").success,
     ).toBe(true);
     expect(projectIdSchema.safeParse("../another-user").success).toBe(false);
   });

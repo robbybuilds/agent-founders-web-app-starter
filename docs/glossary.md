@@ -16,21 +16,37 @@ The rules that decide what a signed-in user can access or change.
 
 A React component that runs in the browser. Use one when an interaction needs browser state or browser APIs.
 
+## Convex
+
+The service that hosts this starter's database, server functions, and authentication. Your app talks to it through the functions in the `convex` folder.
+
+## Deploy Key
+
+A powerful Convex secret that lets a build system deploy to production. Never place it in browser code or commit it to Git.
+
+## Deployment
+
+Your app's own space on Convex. Every project gets a development deployment for building and a production deployment for real users.
+
 ## Environment Variable
 
 A configuration value supplied outside the code. URLs and keys belong in environment variables so each environment can use different values.
 
-## Migration
+## Mutation
 
-A versioned SQL file that changes the database in a repeatable way.
+A Convex function that changes data. Every mutation in this starter checks who is signed in before it writes.
 
-## Publishable Key
+## Ownership Check
 
-A Supabase key designed for browser use. RLS still controls the data it can access.
+The code inside a Convex function that refuses to read or change a record unless it belongs to the signed-in user. It is this starter's final authorization boundary.
 
-## Row Level Security
+## Query
 
-Postgres rules that decide which rows a user can read or change. The short name is RLS.
+A Convex function that reads data. Queries in this starter return only the signed-in user's own records.
+
+## Schema
+
+The file `convex/schema.ts`. It defines every table and field in your database and is the source of truth for its shape.
 
 ## Server Action
 
@@ -39,12 +55,3 @@ A Next.js function that runs on the server and can handle a form submission or a
 ## Server Component
 
 A React component that renders on the server. It can read server data without sending database code to the browser.
-
-## Service Role Key
-
-A powerful Supabase secret that bypasses RLS. Never place it in browser code or commit it to Git.
-
-## Supabase Project Reference
-
-The short identifier for a hosted Supabase project. You can find it in the project dashboard URL.
-

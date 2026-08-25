@@ -20,12 +20,12 @@ Not chosen yet. \`PRODUCT.md\` still describes Project Desk, the starter's examp
 ## Decisions in Force
 
 - Use the stack and rules in \`AGENTS.md\` and \`ARCHITECTURE.md\`.
-- Keep Supabase migrations as the database source of truth.
+- Keep \`convex/schema.ts\` as the database source of truth.
 - Use the Projects feature as the pattern for future user-owned features.
 
 ## Completed
 
-- The starter baseline is in place: authentication, the Projects example feature, migrations, RLS policies, tests, and CI.
+- The starter baseline is in place: authentication, the Projects example feature, the Convex schema, ownership checks, tests, and CI.
 
 ## In Progress
 

@@ -20,25 +20,25 @@ Stripe stays the source of truth for money. Your database stays the source of tr
 
 - Create a Stripe account and stay in **test mode** until the end.
 - Create one product with one price. Resist launching with tiers.
-- Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to `.env.local` and to `.env.example` as placeholders. They are secrets. They never appear in browser code and never start with `NEXT_PUBLIC_`.
-- Extend the server environment validation in `src/lib/env.ts` so a missing key fails loudly at startup instead of quietly at checkout.
+- Store `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` on your Convex deployment with `npx convex env set`. They are secrets. They never appear in browser code, never start with `NEXT_PUBLIC_`, and never go in a commit.
+- Have the Convex functions that use a key fail loudly with a clear error when it is missing, instead of quietly at checkout.
 
 ## The Database Part
 
-Add a migration (see [Change the Database](04-change-the-database.md)) that creates a `subscriptions` table:
+Add a `subscriptions` table to `convex/schema.ts` (see [Change the Database](04-change-the-database.md)):
 
-- `user_id` references the profile that owns it
-- `stripe_customer_id` and `stripe_subscription_id`
+- `userId` typed `v.id("users")`, with an index on it
+- `stripeCustomerId` and `stripeSubscriptionId`
 - `status` (for example `active`, `past_due`, `canceled`)
-- `current_period_end`
+- `currentPeriodEnd`
 
-Follow the same RLS pattern as the `projects` table: users can **select only their own row**. Do not give users insert, update, or delete policies on this table — only the webhook, running with server credentials, may write subscription state. A user who can edit their own subscription row can give themselves a free upgrade.
+Follow the same ownership pattern as `convex/projects.ts` for reading: a public query returns **only the signed-in user's own row**. Do not write any public mutation for this table — only the webhook, through an `internalMutation` the browser cannot call, may write subscription state. A user who can edit their own subscription row can give themselves a free upgrade.
 
-Add database tests that prove a user cannot read or change another user's subscription, the same way `supabase/tests/projects_rls.test.sql` proves it for projects.
+Add `convex-test` tests that prove a user cannot read or change another user's subscription, the same way `tests/unit/projects-access.test.ts` proves it for projects.
 
 ## The Webhook Part
 
-The webhook route is the only writer. Rules that are not optional:
+The webhook is a Convex `httpAction` registered in `convex/http.ts`, and it is the only writer. Rules that are not optional:
 
 - Verify the Stripe signature on every request before trusting the payload. An unverified webhook is an open endpoint that edits your billing table.
 - Handle the same event arriving twice. Stripe retries. Writes must be safe to repeat.
@@ -47,19 +47,19 @@ The webhook route is the only writer. Rules that are not optional:
 
 ## The Checkout Part
 
-Create the Checkout session in a Server Action. Verify the signed-in user on the server first, pass your internal user id in the session metadata so the webhook can find them, and send the user to the URL Stripe returns.
+Create the Checkout session in a Convex action. Read the signed-in user with `getAuthUserId(ctx)` first, pass that user id in the session metadata so the webhook can find them, and send the user to the URL Stripe returns.
 
 ## What to Ask Your Agent
 
 Paste this to start the feature:
 
 ```text
-Read AGENTS.md, PRODUCT.md, BUILD.md, and docs/07-add-payments.md. I want to add payments following that guide exactly: Stripe Checkout, a signature-verified webhook, and a subscriptions table protected by RLS where only the webhook writes. Show me the plan first — files, migration, tests, and the entitlement check — before you build anything.
+Read AGENTS.md, PRODUCT.md, BUILD.md, and docs/07-add-payments.md. I want to add payments following that guide exactly: Stripe Checkout, a signature-verified webhook httpAction, and a subscriptions table where users can only read their own row and only the webhook writes. Show me the plan first — files, schema change, tests, and the entitlement check — before you build anything.
 ```
 
 ## Before You Go Live
 
 - Test the full loop in test mode: subscribe, cancel, and let a payment fail with Stripe's test cards.
 - Confirm the webhook works on your deployed URL, not just your laptop.
-- Swap in live keys through your hosting environment variables, never through a commit.
+- Swap in live keys with `npx convex env set` on production, never through a commit.
 - Read your country's rules on tax and receipts, or use Stripe Tax. This guide is not legal advice.

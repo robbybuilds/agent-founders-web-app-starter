@@ -7,14 +7,13 @@ You only need to do this once for each new app.
 - a GitHub account
 - Node.js 20.9 or newer
 - pnpm
-- Docker Desktop or another Docker-compatible runtime
-- a free Supabase account
+- a free [Convex](https://convex.dev) account
 
-Docker runs a private development version of Supabase on your computer. You can skip local Supabase and connect a hosted project, but the local path gives your agent a safer place to test database changes.
+Convex hosts your database and authentication. It gives every app a free development deployment in the cloud, so there is nothing to install or run on your computer beyond the app itself.
 
 ## 1. Create Your Repository
 
-Open the private starter on GitHub. Click **Use this template**, choose your account, name the app, and select **Private**.
+Open the starter on GitHub. Click **Use this template**, choose your account, name the app, and select **Private**.
 
 Clone the new repository to your computer. GitHub Desktop is fine if you do not want to use the terminal.
 
@@ -34,40 +33,37 @@ corepack enable pnpm
 
 Then run `pnpm install` again.
 
-## 3. Start Local Supabase
+## 3. Connect Convex
 
-Make sure Docker is open. Then run:
+Run:
 
 ```bash
-pnpm db:start
+npx convex dev
 ```
 
-The command prints a local API URL and keys. Keep that terminal output private.
+The first run opens your browser so you can sign in to Convex and create a project. Say yes to creating a new project and give it your app's name.
 
-## 4. Add Your Local Environment
+The command then does three things for you:
 
-Copy `.env.example` to a new file named `.env.local`.
+- creates a development deployment in your Convex account
+- writes `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` into `.env.local`
+- uploads the database schema and functions from the `convex` folder
 
-Use the local API URL for `NEXT_PUBLIC_SUPABASE_URL`. Use the local publishable key for `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-
-The file should look like this with your real local values:
-
-```dotenv
-NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-local-publishable-key
-```
+Leave this command running. It watches the `convex` folder and re-uploads your changes while you work.
 
 Do not commit `.env.local`. Git ignores it on purpose.
 
-## 5. Rebuild the Database
+## 4. Set Up Authentication Keys
+
+Open a second terminal in the repository and run this once:
 
 ```bash
-pnpm db:reset
+npx @convex-dev/auth
 ```
 
-This deletes local development data and rebuilds the database from the migration files. It does not touch a hosted project.
+It generates the signing keys that Convex Auth uses for sessions and stores them on your development deployment. If it asks about files that already exist, keep the existing files.
 
-## 6. Start the App
+## 5. Start the App
 
 ```bash
 pnpm dev
@@ -75,16 +71,30 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000). Create an account and then create a project.
 
-## 7. Check the Setup
+## 6. Check the Setup
 
 Open another terminal in the repository and run:
 
 ```bash
 pnpm check
-pnpm test:db
 ```
 
-You are ready when both commands pass and your project still appears after a browser refresh.
+You are ready when the command passes and your project still appears after a browser refresh.
 
 If a command fails, save the full command and error. Then open [the troubleshooting guide](06-troubleshooting.md).
 
+## Optional: Password Reset Emails
+
+The "Forgot password?" flow emails an 8-digit code. Sending email needs a free [Resend](https://resend.com) account. You can skip this until you have real users.
+
+When you are ready, create a Resend API key and store it on your Convex deployment:
+
+```bash
+npx convex env set AUTH_RESEND_KEY your-resend-api-key
+```
+
+Resend's built-in test address only emails you. Before other people can reset passwords, verify a domain in Resend and set the sender:
+
+```bash
+npx convex env set AUTH_EMAIL "Your App <hello@yourdomain.com>"
+```

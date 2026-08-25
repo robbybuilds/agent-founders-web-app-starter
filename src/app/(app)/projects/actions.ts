@@ -3,10 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { fetchMutation } from "convex/nextjs";
+import { ConvexError } from "convex/values";
+
 import type { FormState } from "@/lib/action-state";
-import { requireUser } from "@/lib/auth/user";
-import { createClient } from "@/lib/supabase/server";
 import { projectIdSchema, projectSchema } from "@/lib/validation/project";
+import { api } from "@convex/_generated/api";
 
 function projectFields(formData: FormData) {
   return {
@@ -14,6 +17,24 @@ function projectFields(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     status: String(formData.get("status") ?? "idea"),
   };
+}
+
+async function requireToken() {
+  const token = await convexAuthNextjsToken();
+
+  if (!token) {
+    redirect("/login");
+  }
+
+  return token;
+}
+
+function failureMessage(error: unknown, fallback: string) {
+  if (error instanceof ConvexError && typeof error.data === "string") {
+    return error.data;
+  }
+
+  return fallback;
 }
 
 export async function createProject(
@@ -29,21 +50,23 @@ export async function createProject(
     };
   }
 
-  const user = await requireUser();
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .insert({ ...result.data, user_id: user.id })
-    .select("id")
-    .single();
+  const token = await requireToken();
+  let projectId: string;
 
-  if (error) {
-    return { message: "We could not create the project. Please try again." };
+  try {
+    projectId = await fetchMutation(api.projects.create, result.data, { token });
+  } catch (error) {
+    return {
+      message: failureMessage(
+        error,
+        "We could not create the project. Please try again.",
+      ),
+    };
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/projects");
-  redirect(`/projects/${data.id}`);
+  redirect(`/projects/${projectId}`);
 }
 
 export async function updateProject(
@@ -62,26 +85,26 @@ export async function updateProject(
     };
   }
 
-  await requireUser();
-  const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("projects")
-    .update(projectResult.data)
-    .eq("id", idResult.data)
-    .select("id")
-    .maybeSingle();
+  const token = await requireToken();
 
-  if (error) {
-    return { message: "We could not save the project. Please try again." };
-  }
-
-  if (!data) {
-    return { message: "That project was not found or does not belong to you." };
+  try {
+    await fetchMutation(
+      api.projects.update,
+      { id: idResult.data, ...projectResult.data },
+      { token },
+    );
+  } catch (error) {
+    return {
+      message: failureMessage(
+        error,
+        "We could not save the project. Please try again.",
+      ),
+    };
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/projects");
-  revalidatePath(`/projects/${data.id}`);
+  revalidatePath(`/projects/${idResult.data}`);
 
   return { success: true, message: "Project saved." };
 }
@@ -93,11 +116,11 @@ export async function deleteProject(formData: FormData) {
     redirect("/projects");
   }
 
-  await requireUser();
-  const supabase = await createClient();
-  const { error } = await supabase.from("projects").delete().eq("id", idResult.data);
+  const token = await requireToken();
 
-  if (error) {
+  try {
+    await fetchMutation(api.projects.remove, { id: idResult.data }, { token });
+  } catch {
     redirect(`/projects/${idResult.data}?error=delete`);
   }
 
@@ -105,4 +128,3 @@ export async function deleteProject(formData: FormData) {
   revalidatePath("/projects");
   redirect("/projects");
 }
-
